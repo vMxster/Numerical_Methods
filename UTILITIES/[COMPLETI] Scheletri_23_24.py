@@ -1,24 +1,34 @@
-def LUsolve(P,A,L,U,b): # Gauss
-    pb=np.dot(P,b)
-    y,flag=RisolviSis.Lsolve(L,pb)
+import numpy as np
+import scipy.linalg as spl
+import matplotlib.pyplot as plt
+
+def LUsolve(A,b): #Gauss a Pivotaggio a Perno Massimo
+    PT,L,U = spl.lu(A)  #Restituisce in output la trasposta della matrice di Permutazione
+    P = PT.copy()   #P è la matrice di permutazione # Gauss
+    pb = np.dot(P,b)
+    y,flag = SolveTriangular.Lsolve(L,pb)
     if flag == 0:
-         x,flag=RisolviSis.Usolve(U,y)
+      x,flag = SolveTriangular.Usolve(U,y)
     else:
-        return [],flag
+      return [],flag
 
     return x,flag
 
-def QRsolve(A, b): # in teoria va bene sia con questo metodo che con qrLS della prof
-    Q, R = spl.qr(A)
-    Q_T_b = Q.T @ b
-    x = spl.solve_triangular(R, Q_T_b)
-    return x
+def QRsolve(A, b): #HouseHolder
+    Q,R = spl.qr(A)
+    y = Q.T @ b   # Inversa di Q uguale alla sua trasposta
+    x,flag = SolveTriangular.Usolve(R,y)
+    return x,flag
 
-def Cholesky_solve(A, b):
-    L = cholesky(A, lower=True)
-    y = solve_triangular(L, b, lower=True)
-    x = solve_triangular(L.T, y, lower=False)
-    return x
+def Cholesky_solve(A, b): #Cholesky
+    L = spl.cholesky(A, lower=True)
+    y,flag = SolveTriangular.Lsolve(L, b)
+    if flag == 0:
+      x,flag = SolveTriangular.Usolve(L.T, y)
+    else:
+      return [],flag
+
+    return x,flag
 
 def metodo_bisezione(fname, a, b, tolx, tolf):
   """
@@ -629,9 +639,9 @@ def my_newton_minimo_MOD(gradiente, Hess, x0, tolx, tolf, nmax):
 # x0 = np.zeros((A3.shape[0],1))
 def jacobi(A, b, x0, toll, it_max):
   errore = 1000
-  d = np.diag(A)
+  D = np.diag(A)
   n = A.shape[0]
-  invM = np.diag(1 / d)
+  invM = np.diag(1 / D)
   E = np.tril(A, -1) # added
   F = np.triu(A, 1) # added
   N = -(E + F) # added
@@ -643,7 +653,7 @@ def jacobi(A, b, x0, toll, it_max):
   
   er_vet = []
   while it <= it_max and errore >= toll: # added
-    x = (b + np.dot(N, x0)) / d.reshape(n, 1) # added
+    x = (b + np.dot(N, x0)) / D.reshape(n, 1) # added
     errore = np.linalg.norm(x - x0) / np.linalg.norm(x)
     er_vet.append(errore)
     x0 = x.copy()
@@ -667,7 +677,7 @@ def gauss_seidel(A, b, x0, toll,it_max):
   er_vet = []
   while it <= it_max and errore >= toll: # added
     temp = b - F@x0 # added
-    x, flag = Lsolve(M, temp) # modified and added 
+    x = SolveTriangular.Lsolve(M, temp) # added (M=D+E che é TriangInf, temp = y)
     errore = np.linalg.norm(x - x0) / np.linalg.norm(x)
     er_vet.append(errore)
     x0 = x.copy()
@@ -697,7 +707,7 @@ def gauss_seidel_sor(A, b, x0, toll, it_max, omega):
     er_vet = []
     while it <= it_max and errore >= toll: # added
         temp = b - np.dot(F, xold) # added
-        xtilde, flag = Lsolve(M, temp) # added
+        xtilde = SolveTriangular.Lsolve(M, temp) # added
         xnew = (1 - omega) * xold + omega * xtilde # added
         errore = np.linalg.norm(xnew - xold) / np.linalg.norm(xnew)
         er_vet.append(errore)
@@ -709,12 +719,11 @@ def gauss_seidel_sor(A, b, x0, toll, it_max, omega):
 def steepestdescent(A, b, x0, itmax, tol):
     n, m = A.shape
     if n != m:
-    print("Matrice non quadrata")
-    return [], []
+      print("Matrice non quadrata")
+      return [], []
 
     # inizializzare le variabili necessarie
     x = x0
-
     r = A@x - b
     p = -r # added
     it = 0
@@ -726,14 +735,11 @@ def steepestdescent(A, b, x0, itmax, tol):
     vet_r.append(errore)
 
     # utilizzare il metodo del gradiente per trovare la soluzione
-    while errore >= tol and it < itmax: # added
+    while it < itmax and errore >= tol: # added
     it = it + 1
     Ap = A@p # added
-
     alpha = -(r.T@p) / (p.T@Ap) # added
-
     x = x + alpha * p # added
-
     vec_sol.append(x)
     r = r + alpha * Ap
     errore = np.linalg.norm(r) / nb
@@ -763,9 +769,9 @@ def conjugate_gradient(A, b, x0, itmax, tol):
     vet_r.append(errore)
 
   # utilizzare il metodo del gradiente coniugato per calcolare la soluzione
-  while errore >= tol and it < itmax:
+  while it < itmax and errore >= tol:
     it = it + 1
-    Ap = A.dot(p) # added
+    Ap = A@p # added
     alpha = -(r.T@p) / (p.T@Ap) # added
     x = x + alpha * p # added
     vec_sol.append(x)
@@ -775,31 +781,29 @@ def conjugate_gradient(A, b, x0, itmax, tol):
     errore = np.linalg.norm(r) / nb
     vet_r.append(errore)
     p = -r + gamma * p # added
-  
+    
   return x, vet_r, vec_sol, it
 
 
 def eqnorm(A, b):
     #Risolve un sistema sovradeterminato con il metodo delle equazioni normali
     G=A.T@A # added
-
     f= A.T@b # added
 
-    L= spLin.cholesky(G, lower=True) # added
+    L= spl.cholesky(G, lower=True) # added (Uso Cholesky pk G simm. def.pos)
     U = L.T
 
     # modified and added
     z, flag = SolveTriangular.Lsolve(L, f)
     if flag == 0:
         x, flag = SolveTriangular.Usolve(U, z)
-  
-  return x
+    return x
 
 
 def qrLS(A, b):
   #Risolve un sistema sovradeterminato con il metodo QR-LS
   n = A.shape[1]  # numero di colonne di A
-  Q, R = spLin.qr(A)
+  Q, R = spl.qr(A)
   h = Q.T@b # added
   x, flag = SolveTriangular.Usolve(R[0:n,:],h[0:n]) # added
   residuo = np.linalg.norm(h[n:])**2

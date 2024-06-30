@@ -57,7 +57,7 @@ def falsi(fname, a, b, maxit, tolx,tolf):
  fa=fname(a);
  fb=fname(b);
  
-if  : #to do
+if : #to do 
      print("Non è possibile applicare il metodo di falsa posizione \n")
      return None, None,None
 
@@ -67,8 +67,8 @@ if  : #to do
  fxk=10
 
  
- while  : # to do
-    xk = #to do
+ while : # to do
+    xk = # to do
     v_xk.append(xk)
     it += 1
     fxk=fname(xk)
@@ -77,11 +77,11 @@ if  : #to do
 
     # 
     if sign(fa)*sign(fxk)>0:   
-       #to do
-        #to do
+       #to do 
+       #to do 
     elif sign(fxk)*sign(fb)>0:    
-      #to do
-      #to do
+      #to do 
+      #to do 
 
  
  return xk, it, v_xk
@@ -103,13 +103,13 @@ def corde(fname,m,x0,tolx,tolf,nmax):
  """
         xk=[]
         fx0=#to do
-        d=#to do
+        d=#to do 
         x1=#to do
         fx1=fname(x1)
         xk.append(x1)
         it=1
         
-        while  :
+        while :
            x0= # to do
            fx0= #to do
            d= #to do
@@ -690,19 +690,15 @@ def gauss_seidel_sor(A,b,x0,toll,it_max,omega):
     return xnew,it,er_vet
 
 def steepestdescent(A,b,x0,itmax,tol):
- 
     n,m=A.shape
     if n!=m:
-        print("Matrice non quadrata")
-        return [],[]
+      print("Matrice non quadrata")
+      return [],[]
     
-    
-   # inizializzare le variabili necessarie
+    # inizializzare le variabili necessarie
     x = x0
-
-     
     r = A@x-b
-    p =  
+    p = #todo
     it = 0
     nb=np.linalg.norm(b)
     errore=np.linalg.norm(r)/nb
@@ -713,21 +709,16 @@ def steepestdescent(A,b,x0,itmax,tol):
      
 # utilizzare il metodo del gradiente per trovare la soluzione
     while #to do:
-        it=it+1
-        Ap= #to do
-       
-        alpha = #to do
-                
-        x =  
-        
-         
-        vec_sol.append(x)
-        r=r+alpha*Ap
-        errore=np.linalg.norm(r)/nb
-        vet_r.append(errore)
-        p =#to do
-        
-     
+      it=it+1
+      Ap= #to do
+      alpha = #to do
+      x =  #to do
+      vec_sol.append(x)
+      r=r+alpha*Ap
+      errore=np.linalg.norm(r)/nb
+      vet_r.append(errore)
+      p = #to do
+    
     return x,vet_r,vec_sol,it
 
 
@@ -759,7 +750,7 @@ def conjugate_gradient(A,b,x0,itmax,tol):
         vec_sol.append(x)
         rtr_old=r.T@r
         r=r+alpha*Ap
-        gamma= 
+        gamma= #to do
         errore=np.linalg.norm(r)/nb
         vet_r.append(errore)
         p =  #to do
@@ -769,16 +760,16 @@ def conjugate_gradient(A,b,x0,itmax,tol):
 
 def eqnorm(A,b):
 #Risolve un sistema sovradeterminato con il metodo delle equazioni normali
-    G= 
+    G= #todo 
      
-    f= 
+    f= #todo 
     
-    L= 
+    L= #todo 
     U=L.T
         
    
-    z=
-    x=
+    z= #todo 
+    x= #todo 
     
     return x
     
@@ -819,10 +810,10 @@ def plagr(xnodi,j):
     if j==0:
        xzeri=xnodi[1:n]
     else:
-       xzeri=np.append(#to do)
+       xzeri=np.append(#todo)
     
-    num=#to do
-    den=#to do
+    num= #todo
+    den= #todo 
     
     p=num/den
     
